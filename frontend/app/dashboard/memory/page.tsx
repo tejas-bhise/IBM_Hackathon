@@ -196,7 +196,7 @@ function MemoryPageContent() {
 
         {/* Main timeline */}
         <div className="mb-8">
-          <MemoryTimeline items={memoryItems} />
+          <MemoryTimeline events={memoryItems.map((item: any, i: number) => ({ id: `item-${i}`, title: item.title || item.description || "Event", description: item.description || "", timestamp: item.timestamp || "", category: item.category || item.type || "feature", file: item.file }))} />
         </div>
 
         {/* Insights section */}

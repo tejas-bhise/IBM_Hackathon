@@ -267,6 +267,9 @@ export const getWorkflow = (projectId: string) => apiClient.getWorkflow(projectI
 export const getMock     = (projectId: string) => apiClient.getMock(projectId);
 export const getMemory   = (projectId: string) => apiClient.getMemory(projectId);
 /** MemoryItem — single entry in a memory list */
+
+
+/** MemoryItem — single entry in a memory list */
 export interface MemoryItem {
   title?: string;
   description?: string;
@@ -277,6 +280,8 @@ export interface MemoryItem {
   line?: number;
 }
 
+
+/** MemoryItem — single memory entry returned by getMemory() */
 export interface MemoryItem {
   title?: string;
   description?: string;
