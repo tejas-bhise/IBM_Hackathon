@@ -8,3 +8,5 @@ router = APIRouter()
 async def llm_status():
     """Get LLM availability status"""
     return JSONResponse(get_availability_status())
+
+# Made with Bob
