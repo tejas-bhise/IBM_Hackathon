@@ -144,8 +144,8 @@ export function WorkflowClient() {
                 <h2 className="text-2xl font-bold text-white">{data.stage}</h2>
                 <div className="flex items-center gap-2">
                   <ShieldAlert className="w-5 h-5 text-slate-300" />
-                  <span className={`text-xs font-bold px-3 py-1 rounded ${riskLabel(data.risk).cls}`}>
-                    Risk: {riskLabel(data.risk).label} ({data.risk})
+                  <span className={`text-xs font-bold px-3 py-1 rounded ${riskLabel(Number(data.risk)).cls}`}>
+                    Risk: {riskLabel(Number(data.risk)).label} ({data.risk})
                   </span>
                 </div>
               </div>

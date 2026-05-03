@@ -59,7 +59,7 @@ export interface WorkflowData {
   stage: string;
   stage_label: string;
   risk_level: string;
-  risk: string;
+  risk: number;
   recommended_action: string;
   confidence: number;
   security_score: number;
