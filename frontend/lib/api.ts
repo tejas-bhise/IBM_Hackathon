@@ -20,6 +20,7 @@ export interface StatusResponse {
   current_step_name: string;
   error?: string;
   project_name?: string;
+  mode?: string;
 }
 
 export interface SecurityIssue {
