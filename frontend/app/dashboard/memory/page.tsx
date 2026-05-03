@@ -63,7 +63,11 @@ function MemoryPageContent() {
           ];
           
           // Sort by timestamp (newest first)
-          allItems.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+          allItems.sort((a, b) => {
+  const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+  const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+  return timeB - timeA;
+});
           
           setMemoryItems(allItems);
         }
