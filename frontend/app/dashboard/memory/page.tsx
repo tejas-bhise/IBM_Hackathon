@@ -59,7 +59,7 @@ function MemoryPageContent() {
             ...toItems(response.recent_work || []),
             ...toItems(response.features || []),
             ...toItems(response.security || []),
-            ...(response.refactors || []),
+            ...toItems(response.refactors || []),
           ];
           
           // Sort by timestamp (newest first)
