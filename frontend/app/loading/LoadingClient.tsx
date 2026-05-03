@@ -44,7 +44,11 @@ export function LoadingClient() {
 
         setProgress(status.percent);
         setCurrentStep(status.current_step_name);
-        setAiMode(status.mode);
+        if (status.mode === 'llm' || status.mode === 'fallback') {
+  setAiMode(status.mode);
+} else {
+  setAiMode('fallback'); // safe default
+}
 
         const s = (status.status || '').toLowerCase();
         const isComplete = status.percent >= 100 || s === 'complete' || s === 'completed' || s === 'done' || s === 'finished';
