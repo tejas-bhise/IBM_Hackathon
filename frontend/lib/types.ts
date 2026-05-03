@@ -50,7 +50,7 @@ export interface SecurityFinding {
   severity: 'high' | 'medium' | 'low';
   file: string;
   line: number;
-  fix: string;
+  fix: string | undefined;
   suggestedFix?: string;
   content?: string;
   context?: string;
