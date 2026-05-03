@@ -50,10 +50,15 @@ function MemoryPageContent() {
         
         if (!cancelled) {
           // Combine all memory items from different categories
+          const toItems = (arr: any[]): MemoryItem[] =>
+            arr.map((x: any) => typeof x === 'string'
+              ? { title: x, description: x, category: 'feature', timestamp: '' }
+              : x as MemoryItem);
+
           const allItems: MemoryItem[] = [
-            ...(response.recent_work || []),
-            ...(response.features || []),
-            ...(response.security || []),
+            ...toItems(response.recent_work || []),
+            ...toItems(response.features || []),
+            ...toItems(response.security || []),
             ...(response.refactors || []),
           ];
           
