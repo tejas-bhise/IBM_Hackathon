@@ -266,3 +266,13 @@ export const sendChat    = (projectId: string, question: string, role?: 'dev' | 
 export const getWorkflow = (projectId: string) => apiClient.getWorkflow(projectId);
 export const getMock     = (projectId: string) => apiClient.getMock(projectId);
 export const getMemory   = (projectId: string) => apiClient.getMemory(projectId);
+/** MemoryItem — single entry in a memory list */
+export interface MemoryItem {
+  title?: string;
+  description?: string;
+  category?: string;
+  timestamp?: string;
+  file?: string;
+  type?: string;
+  line?: number;
+}
