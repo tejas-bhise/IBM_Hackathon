@@ -158,15 +158,15 @@ export function WorkflowClient() {
               <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-slate-900/40 border border-slate-700 rounded-lg p-4">
                   <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">Security score</p>
-                  <p className="text-2xl font-bold text-white">{data.metrics?.security_score ?? '—'}</p>
+                  <p className="text-2xl font-bold text-white">{data.security_score ?? '—'}</p>
                 </div>
                 <div className="bg-slate-900/40 border border-slate-700 rounded-lg p-4">
-                  <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">Code quality</p>
-                  <p className="text-2xl font-bold text-white">{data.metrics?.code_quality ?? '—'}</p>
+                  <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">Grade</p>
+                  <p className="text-2xl font-bold text-white">{data.grade ?? '—'}</p>
                 </div>
                 <div className="bg-slate-900/40 border border-slate-700 rounded-lg p-4">
-                  <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">Test coverage</p>
-                  <p className="text-2xl font-bold text-white">{data.metrics?.test_coverage ?? '—'}</p>
+                  <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">Total issues</p>
+                  <p className="text-2xl font-bold text-white">{data.total_issues ?? '—'}</p>
                 </div>
               </div>
             </div>
