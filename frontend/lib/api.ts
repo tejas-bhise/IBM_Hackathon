@@ -2,8 +2,6 @@ import axios, { AxiosInstance, AxiosError } from 'axios';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:8000/api';
 
-// ─── Response Types ────────────────────────────────────────────────────────────
-
 export interface UploadResponse {
   success: boolean;
   project_id: string;
@@ -105,19 +103,28 @@ export interface AnalysisResponse {
   workflow: WorkflowData;
 }
 
-// GET /workflow/{id} → { success, project_id, workflow: WorkflowData }
 export interface WorkflowResponse {
   success: boolean;
   project_id: string;
   workflow: WorkflowData;
 }
 
-// GET /memory/{id} → flat: { recent_work, features, security, refactors }
+/** Single entry in a memory list */
+export interface MemoryItem {
+  title?: string;
+  description?: string;
+  category?: string;
+  timestamp?: string;
+  file?: string;
+  type?: string;
+  line?: number;
+}
+
 export interface MemoryResponse {
-  recent_work: string[];
-  features: string[];
-  security: string[];
-  refactors: string[];
+  recent_work: (string | MemoryItem)[];
+  features: (string | MemoryItem)[];
+  security: (string | MemoryItem)[];
+  refactors: (string | MemoryItem)[];
 }
 
 export interface MockResponse {
@@ -131,7 +138,6 @@ export interface ChatSource {
   score?: number;
 }
 
-// POST /chat → { success, answer, reasoning, sources, role, mode, confidence, chunks_retrieved }
 export interface ChatResponse {
   success: boolean;
   answer: string;
@@ -142,8 +148,6 @@ export interface ChatResponse {
   confidence: 'high' | 'low';
   chunks_retrieved: number;
 }
-
-// ─── Error Helper ──────────────────────────────────────────────────────────────
 
 function getApiErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
@@ -158,28 +162,25 @@ function getApiErrorMessage(error: unknown): string {
   return 'An unexpected error occurred';
 }
 
-// ─── API Client ────────────────────────────────────────────────────────────────
-
 class APIClient {
   private client: AxiosInstance;
 
   constructor() {
     this.client = axios.create({
       baseURL: BASE_URL,
-      timeout: 60_000,
+      timeout: 300_000,
       headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  // POST /upload — MUST be multipart/form-data (backend uses Form(), not JSON body)
   async uploadProject(githubUrl?: string, file?: File): Promise<UploadResponse> {
     const formData = new FormData();
     if (githubUrl) formData.append('github_url', githubUrl.trim());
     if (file) formData.append('file', file);
-
     try {
       const response = await this.client.post<UploadResponse>('/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: 300_000,
       });
       return response.data;
     } catch (error) {
@@ -205,7 +206,6 @@ class APIClient {
     }
   }
 
-  // POST /chat — JSON body: { project_id, question, role }
   async sendChat(
     projectId: string,
     question: string,
@@ -223,7 +223,6 @@ class APIClient {
     }
   }
 
-  // GET /workflow/{id} → { success, project_id, workflow: WorkflowData }
   async getWorkflow(projectId: string): Promise<WorkflowResponse> {
     try {
       const response = await this.client.get<WorkflowResponse>(`/workflow/${projectId}`);
@@ -242,7 +241,6 @@ class APIClient {
     }
   }
 
-  // GET /memory/{id} → flat { recent_work, features, security, refactors }
   async getMemory(projectId: string): Promise<MemoryResponse> {
     try {
       const response = await this.client.get<MemoryResponse>(`/memory/${projectId}`);
@@ -252,8 +250,6 @@ class APIClient {
     }
   }
 }
-
-// ─── Singleton + Convenience Exports ──────────────────────────────────────────
 
 export const apiClient = new APIClient();
 
@@ -266,28 +262,3 @@ export const sendChat    = (projectId: string, question: string, role?: 'dev' | 
 export const getWorkflow = (projectId: string) => apiClient.getWorkflow(projectId);
 export const getMock     = (projectId: string) => apiClient.getMock(projectId);
 export const getMemory   = (projectId: string) => apiClient.getMemory(projectId);
-/** MemoryItem — single entry in a memory list */
-
-
-/** MemoryItem — single entry in a memory list */
-export interface MemoryItem {
-  title?: string;
-  description?: string;
-  category?: string;
-  timestamp?: string;
-  file?: string;
-  type?: string;
-  line?: number;
-}
-
-
-/** MemoryItem — single memory entry returned by getMemory() */
-export interface MemoryItem {
-  title?: string;
-  description?: string;
-  category?: string;
-  timestamp?: string;
-  file?: string;
-  type?: string;
-  line?: number;
-}
