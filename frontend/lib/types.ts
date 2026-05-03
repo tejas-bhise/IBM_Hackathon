@@ -43,3 +43,15 @@ export function toDisplayIssue(
     fix:         raw.fix_suggestion,
   };
 }
+/** SecurityFinding — alias used by auditor page */
+export interface SecurityFinding {
+  id: string;
+  type: string;
+  severity: 'high' | 'medium' | 'low';
+  file: string;
+  line: number;
+  fix: string;
+  suggestedFix?: string;
+  content?: string;
+  context?: string;
+}
