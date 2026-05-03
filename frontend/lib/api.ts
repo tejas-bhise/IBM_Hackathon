@@ -276,3 +276,13 @@ export interface MemoryItem {
   type?: string;
   line?: number;
 }
+
+export interface MemoryItem {
+  title?: string;
+  description?: string;
+  category?: string;
+  timestamp?: string;
+  file?: string;
+  type?: string;
+  line?: number;
+}
