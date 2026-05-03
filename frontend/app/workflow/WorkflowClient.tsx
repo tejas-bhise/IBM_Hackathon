@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getWorkflow, type WorkflowResponse } from '@/lib/api';
+import { getWorkflow, type WorkflowData } from '@/lib/api';
 import { AlertCircle, Loader, ShieldAlert, Target, Workflow } from 'lucide-react';
 
 type Tab = 'dev' | 'pm' | 'investor';
@@ -22,7 +22,7 @@ export function WorkflowClient() {
   }, [searchParams]);
 
   const [tab, setTab] = useState<Tab>('dev');
-  const [data, setData] = useState<WorkflowResponse | null>(null);
+  const [data, setData] = useState<WorkflowData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,7 +39,7 @@ export function WorkflowClient() {
         setLoading(true);
         setError(null);
         const res = await getWorkflow(projectId);
-        if (!cancelled) setData(res);
+        if (!cancelled) setData(res.workflow);
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load workflow.');
       } finally {
