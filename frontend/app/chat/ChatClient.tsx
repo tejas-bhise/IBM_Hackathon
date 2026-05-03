@@ -1,16 +1,20 @@
 'use client';
 
+
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { sendChat, type ChatResponse } from '@/lib/api';
 import { useProjectStore } from '@/lib/store';
 import { AlertCircle, Loader, Send, AlertTriangle, FileCode } from 'lucide-react';
 
+
 type Role = 'dev' | 'pm' | 'investor';
+
 
 type ChatMessage =
   | { id: string; kind: 'user'; text: string; createdAt: number }
   | { id: string; kind: 'assistant'; text: string; payload: ChatResponse; createdAt: number };
+
 
 function confidenceClass(confidence: number | undefined) {
   if (confidence === undefined || isNaN(confidence)) {
@@ -21,6 +25,7 @@ function confidenceClass(confidence: number | undefined) {
   return 'text-red-200 bg-red-950/30 border-red-700/40';
 }
 
+
 function confidenceLabel(confidence: number | undefined): string {
   if (confidence === undefined || isNaN(confidence)) {
     return 'Low confidence';
@@ -28,28 +33,32 @@ function confidenceLabel(confidence: number | undefined): string {
   return `${(confidence * 100).toFixed(0)}%`;
 }
 
+
 // Filter out docs/ paths from sources
-function filterSources(sources: any[]): any[] {
+function filterSources(sources: unknown[]): unknown[] {
   if (!Array.isArray(sources)) return [];
   return sources.filter(s => {
     if (typeof s === 'string') {
       return !s.includes('docs/');
     }
-    if (typeof s === 'object' && s.file) {
-      return !s.file.includes('docs/');
+    if (typeof s === 'object' && s !== null && 'file' in s) {
+      return !(s as Record<string, unknown>).file?.toString().includes('docs/');
     }
     return true;
   });
 }
+
 
 export function ChatClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { projectId: storeProjectId, setProjectId: setStoreProjectId } = useProjectStore();
 
+
   // 1. FIX HYDRATION: Start with null and only set after mounting
   const [mounted, setMounted] = useState(false);
   const [projectId, setProjectId] = useState<string | null>(null);
+
 
   useEffect(() => {
     setMounted(true);
@@ -66,17 +75,21 @@ export function ChatClient() {
     }
   }, [searchParams, storeProjectId, setStoreProjectId]);
 
+
   const [role, setRole] = useState<Role>('dev');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [question, setQuestion] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+
   const bottomRef = useRef<HTMLDivElement | null>(null);
+
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length, loading]);
+
 
   // Debounced submit to avoid duplicate calls
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -94,13 +107,16 @@ export function ChatClient() {
     const q = question.trim();
     if (!q) return;
 
+
     setError(null);
     setLoading(true);
     setIsSubmitting(true);
     setQuestion('');
 
+
     const userMsg: ChatMessage = { id: crypto.randomUUID(), kind: 'user', text: q, createdAt: Date.now() };
     setMessages((prev) => [...prev, userMsg]);
+
 
     try {
       // Send only last 3 messages for context (token optimization)
@@ -130,8 +146,10 @@ export function ChatClient() {
     }
   }, [projectId, question, role, messages, loading, isSubmitting]);
 
+
   // Prevent hydration mismatch by returning null until client-side state is ready
   if (!mounted) return null;
+
 
   if (!projectId) {
     return (
@@ -154,6 +172,7 @@ export function ChatClient() {
       </div>
     );
   }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800">
@@ -186,6 +205,7 @@ export function ChatClient() {
         </div>
       </div>
 
+
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {error && (
           <div className="mb-4 bg-red-950 border border-red-700 rounded-lg p-4 flex items-start gap-3">
@@ -193,6 +213,7 @@ export function ChatClient() {
             <p className="text-red-300 text-sm">{error}</p>
           </div>
         )}
+
 
         <div className="bg-slate-900/40 border border-slate-700 rounded-lg overflow-hidden">
           <div className="p-4 sm:p-6 space-y-4 max-h-[65vh] overflow-y-auto">
@@ -207,8 +228,10 @@ export function ChatClient() {
                 );
               }
 
-              const conf = m.payload.confidence;
+
+              const conf = typeof m.payload.confidence === 'number' ? m.payload.confidence : undefined;
               const isFallback = m.payload.mode === 'fallback';
+              const isAiMode = m.payload.mode === 'gemini' || m.payload.mode === 'groq';
               const filteredSources = filterSources(m.payload.sources || []);
               
               return (
@@ -226,14 +249,17 @@ export function ChatClient() {
                     
                     <div className="flex flex-wrap items-center gap-2 mb-3">
                       <span className={`text-xs font-semibold px-2 py-1 rounded border ${
-                        m.payload.mode === 'llm' ? 'text-cyan-200 bg-cyan-950/30 border-cyan-700/40' : 'text-amber-200 bg-amber-950/30 border-amber-700/40'
+                        isAiMode
+                          ? 'text-cyan-200 bg-cyan-950/30 border-cyan-700/40'
+                          : 'text-amber-200 bg-amber-950/30 border-amber-700/40'
                       }`}>
-                        {m.payload.mode === 'llm' ? 'AI Mode' : 'Deterministic Mode'}
+                        {isAiMode ? 'AI Mode' : 'Deterministic Mode'}
                       </span>
                       <span className={`text-xs font-semibold px-2 py-1 rounded border ${confidenceClass(conf)}`}>
                         Confidence: {confidenceLabel(conf)}
                       </span>
                     </div>
+
 
                     {/* Answer - structured for fallback */}
                     {isFallback ? (
@@ -252,18 +278,19 @@ export function ChatClient() {
                       <p className="text-slate-100 whitespace-pre-wrap">{m.payload.answer}</p>
                     )}
 
+
                     <div className="mt-4 grid grid-cols-1 gap-3">
                       {/* Reasoning Section */}
                       {m.payload.reasoning && Array.isArray(m.payload.reasoning) && m.payload.reasoning.length > 0 && (
                         <div className="bg-slate-900/40 border border-slate-700 rounded-lg p-3">
                           <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">Reasoning</p>
                           <div className="space-y-1 text-sm text-slate-200">
-                            {m.payload.reasoning.map((r: any, i: number) => (
+                            {m.payload.reasoning.map((r: unknown, i: number) => (
                               <div key={i} className="flex items-start gap-2">
                                 <FileCode className="w-3 h-3 text-slate-400 mt-1 flex-shrink-0" />
                                 <span>
-                                  {typeof r === 'object' && r.file
-                                    ? `${r.file} (Lines ${r.start_line}-${r.end_line})`
+                                  {typeof r === 'object' && r !== null && 'file' in r
+                                    ? `${(r as Record<string, unknown>).file} (Lines ${(r as Record<string, unknown>).start_line}-${(r as Record<string, unknown>).end_line})`
                                     : typeof r === 'string' ? r : JSON.stringify(r)}
                                 </span>
                               </div>
@@ -272,19 +299,20 @@ export function ChatClient() {
                         </div>
                       )}
 
+
                       {/* Sources Section - Filtered */}
                       {filteredSources.length > 0 && (
                         <div className="bg-slate-900/40 border border-slate-700 rounded-lg p-3">
                           <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">Sources</p>
                           <ul className="space-y-1 text-sm">
-                            {filteredSources.map((s: any, idx: number) => (
+                            {filteredSources.map((s: unknown, idx: number) => (
                               <li key={idx} className="flex items-start gap-2">
                                 <FileCode className="w-3 h-3 text-slate-400 mt-1 flex-shrink-0" />
                                 {typeof s === 'string' ? (
                                   <span className="text-cyan-300 font-mono text-xs break-all">{s}</span>
                                 ) : (
                                   <span className="text-slate-300 font-mono text-xs">
-                                    {s.file} (Lines {s.start_line}-{s.end_line})
+                                    {(s as Record<string, unknown>).file as string} (Lines {(s as Record<string, unknown>).start_line as number}-{(s as Record<string, unknown>).end_line as number})
                                   </span>
                                 )}
                               </li>
@@ -306,6 +334,7 @@ export function ChatClient() {
             )}
             <div ref={bottomRef} />
           </div>
+
 
           <form onSubmit={onSubmit} className="border-t border-slate-700 p-3 sm:p-4 bg-slate-950/40">
             <div className="flex items-center gap-3">
