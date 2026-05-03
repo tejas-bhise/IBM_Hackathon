@@ -54,10 +54,10 @@ export default function AuditorPage() {
           id: `issue-${index}`,
           type: issue.type.toLowerCase().replace(/_/g, '_'), // Keep backend format
           severity: issue.severity.toLowerCase() as 'high' | 'medium' | 'low',
-          file: issue.file,
-          line: issue.line,
-          fix: issue.fix,
-          suggestedFix: issue.fix, // Map fix to suggestedFix for compatibility
+          file: issue.file_path,
+          line: issue.line_number,
+          fix: issue.fix_suggestion,
+          suggestedFix: issue.fix_suggestion, // Map fix to suggestedFix for compatibility
           content: '', // Not provided by backend
           context: '', // Not provided by backend
         }));
